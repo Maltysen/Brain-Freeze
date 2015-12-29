@@ -26,6 +26,9 @@ def join_game(data):
         master = True
         game = [[request.sid, data["name"]]]
         mc.add(game_id, game)
+    elif game == -1:
+        emit("too late")
+        return
     else:
         game += [[request.sid, data["name"]]]
         mc.set(game_id, game)
@@ -41,14 +44,23 @@ def start_game(data):
     game = mc.get(game_id)
 
     if game[0][0] == request.sid:
+        mc.set(game_id, -1)
         emit("game started", room = game_id)
         emit("game update", gen_cards(), room = game_id)
         Timer(30, stop_game, [game_id]).start()
 
+@socketio.on('disconnect')
+def disconnection():
+    stop_game(rooms()[1])
+
+@socketio.on('stopping')
+def stopping(game_id):
+    stop_game(game_id)
+
 def stop_game(game_id):
+    mc.delete(game_id)
     socketio.emit("game stopped", room = game_id)
     socketio.close_room(game_id)
-    mc.delete(game_id)
 
 @socketio.on('correct')
 def correct(data):

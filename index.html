@@ -4,6 +4,30 @@
         <title>Brain Freeze!</title>
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+
+        <style>
+            li.player {
+                display: inline-block;
+                text-align: center;
+                min-width: 150px;
+                padding-right: 25px;
+                padding-left: 25px;
+                vertical-align: middle;
+                border-radius: 25px;
+                font-size: 22pt;
+                background: rgba(0, 125, 255, 0.3);
+                margin-right: 50px;
+            }
+
+            li.player.you {
+                background: rgba(255, 0, 0, 0.3)
+            }
+
+            h1.score {
+                font-size: 5em;
+                margin-top: -2px;
+            }
+        </style>
     </head>
 
     <body>
@@ -26,6 +50,7 @@
             </div>
 
             <div class="container" id="signup">
+                <h1 style="margin-top: 30px;margin-bottom: 75px;">Welcome to Brain Freeze!</h1>
                 <form id="id-form">
                     <h1><label for="name">Your Nickname:</label> <input type="input" id="name" value="" class="form-control"></h1>
                     <h1><label for="game-id">Game Id:</label> <input type="input" id="game-id" value="" class="form-control"></h1>
@@ -33,9 +58,14 @@
                 </form>
             </div>
 
-            <div class="container" id="pregame">
-                <input type="button" id="start-game" value="Start Game" class="btn btn-primary">
-                <ul id="players"></ul>
+            <div class="container" id="pregame" style="margin-top: 25px;">
+                <h1 style="display: inline;">Waiting for Players</h1>
+                <input type="button" id="start-game" value="Start Game" class="btn btn-lg  btn-primary" style="float: right;">
+            </div>
+
+            <div class="container" id="players-cont" style="margin-top: 75px">
+                <ul id="players" style="list-style-type: none; margin: 0; padding: 0;">
+                </ul>
             </div>
 
             <div class="container" id="postgame">
