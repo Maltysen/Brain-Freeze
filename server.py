@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, Response, jsonify, make_response
-from flask_socketio import SocketIO, emit, join_room, leave_room, rooms
+from flask_socketio import SocketIO, emit, join_room, leave_room, rooms, close_room
 import string, random, time, os, base64
 from memcache import Client
 from threading import Timer
@@ -26,6 +26,7 @@ def join_game(data):
         master = True
         game = [[request.sid, data["name"]]]
         mc.add(game_id, game)
+        close_room(game_id)
     elif game == -1:
         emit("too late")
         return
@@ -36,6 +37,7 @@ def join_game(data):
     #mc.add(request.cookies["playerId"], 0)
 
     join_room(game_id)
+    print(game_id)
     emit("pregame update", game, room = game_id)
 
 @socketio.on('start game')
@@ -47,33 +49,35 @@ def start_game(data):
         mc.set(game_id, -1)
         emit("game started", room = game_id)
         emit("game update", gen_cards(), room = game_id)
-        Timer(30, stop_game, [game_id]).start()
+        print("started")
+#        Timer(30, stop_game, [game_id, request.namespace]).start()
+#
+# @socketio.on('stopping')
+# def stopping(game_id):
+#     stop_game(game_id)
 
-@socketio.on('disconnect')
-def disconnection():
-    stop_game(rooms()[1])
-
-@socketio.on('stopping')
-def stopping(game_id):
-    stop_game(game_id)
-
-def stop_game(game_id):
+@socketio.on('stop')
+def stop_game(data):
+    game_id = data["id"]
+    print(game_id)
     mc.delete(game_id)
-    socketio.emit("game stopped", room = game_id)
+    socketio.emit("stopped", room = game_id)
     socketio.close_room(game_id)
 
 @socketio.on('correct')
 def correct(data):
     game_id = data["id"]
 
-    emit("game update", gen_cards(), room = game_id)
-    emit("score update", {"player": request.sid, "new": data["score"] + 1}, room = game_id)
+    if mc.get(game_id):
+        emit("game update", gen_cards(), room = game_id)
+        emit("score update", {"player": request.sid, "new": data["score"] + 10}, room = game_id)
 
 @socketio.on('wrong')
 def correct(data):
     game_id = data["id"]
 
-    emit("score update", {"player": request.sid, "new": data["score"] - 1}, room = game_id)
+    if mc.get(game_id):
+        emit("score update", {"player": request.sid, "new": data["score"] - 5}, room = game_id)
 
 def gen_cards():
     pool = set(string.ascii_uppercase + string.digits)
@@ -96,4 +100,4 @@ def other(path):
     return app.send_static_file(path)
 
 if __name__ == '__main__':
-    socketio.run(app=app, debug=True, host="0.0.0.0")
+    socketio.run(app=app, debug=True, host="0.0.0.0", use_reloader=True)

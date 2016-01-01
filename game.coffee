@@ -5,6 +5,8 @@ in_pregame = false
 game_id = null
 timer = null
 bound = false
+master = false
+players = null
 
 $("#pregame").hide()
 $("#players-cont").hide()
@@ -16,7 +18,9 @@ $("#id-form").submit((e) ->
     game_id = $("#game-id").val()
 
     if not bound
-        socket.on("pregame update", (players) ->
+        socket.on("pregame update", (data) ->
+                player = data
+
                 $("#signup").hide()
                 $("#pregame").show()
                 $("#players-cont").show()
@@ -26,8 +30,9 @@ $("#id-form").submit((e) ->
                 $(".score").hide()
 
                 if players.length == 1
-                    $("#start-game").show()
+                    master = true
 
+                    $("#start-game").show()
                     $("#start-game").click((e) -> socket.emit("start game", {id: game_id}))
 
                 if players[players.length - 1][0] == socket.id
@@ -48,6 +53,9 @@ $("#id-form").submit((e) ->
                 interval: 100,
                 callback: () ->
                     $("#timer").text(timer.msToTimecode(timer.lap()).slice(4))
+                complete: () ->
+                    if master
+                        socket.emit("stop", {id: game_id})
             })
 
             timer.start($("#timer").text())
@@ -56,20 +64,13 @@ $("#id-form").submit((e) ->
                 pressed = String.fromCharCode(e.keyCode)
 
                 if pressed in cards[0].concat(cards[1]) and not event.metaKey
-                    if pressed == common
-                        score += 1
-                        socket.emit("correct", {id: game_id, score: parseInt($("##{socket.id}").text())})
-                    else if score
-                        socket.emit("wrong", {id: game_id, score: parseInt($("##{socket.id}").text())})
-                        score -= 1
-            )
-        )
+                    score = parseInt($("##{socket.id}").text())
 
-        socket.on("game stopped", (data) ->
-            socket.disconnect()
-            $("#game").hide()
-            $("#player-cont").hide()
-            $("#postgame").show()
+                    if pressed == common
+                        socket.emit("correct", {id: game_id, score: score})
+                    else if score
+                        socket.emit("wrong", {id: game_id, score: score})
+            )
         )
 
         socket.on("game update", (data) ->
@@ -77,6 +78,14 @@ $("#id-form").submit((e) ->
 
             $("#card1").text(cards[0])
             $("#card2").text(cards[1])
+        )
+
+        socket.on("stopped", (data) ->
+            #winner = winner.data
+            $(window).unbind()
+            $("#game").hide()
+            $("#player-cont").hide()
+            $("#postgame").show()
         )
 
         socket.on("score update", (data) ->

@@ -1,5 +1,5 @@
 (function() {
-  var bound, cards, common, game_id, in_pregame, score, socket, timer,
+  var bound, cards, common, game_id, in_pregame, master, players, score, socket, timer,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   cards = common = null;
@@ -16,6 +16,10 @@
 
   bound = false;
 
+  master = false;
+
+  players = null;
+
   $("#pregame").hide();
 
   $("#players-cont").hide();
@@ -29,8 +33,9 @@
   $("#id-form").submit(function(e) {
     game_id = $("#game-id").val();
     if (!bound) {
-      socket.on("pregame update", function(players) {
+      socket.on("pregame update", function(data) {
         var player;
+        player = data;
         $("#signup").hide();
         $("#pregame").show();
         $("#players-cont").show();
@@ -46,6 +51,7 @@
         $("#" + socket.id + "-score").addClass("you");
         $(".score").hide();
         if (players.length === 1) {
+          master = true;
           $("#start-game").show();
           $("#start-game").click(function(e) {
             return socket.emit("start game", {
@@ -69,6 +75,13 @@
           interval: 100,
           callback: function() {
             return $("#timer").text(timer.msToTimecode(timer.lap()).slice(4));
+          },
+          complete: function() {
+            if (master) {
+              return socket.emit("stop", {
+                id: game_id
+              });
+            }
           }
         });
         timer.start($("#timer").text());
@@ -76,32 +89,31 @@
           var pressed;
           pressed = String.fromCharCode(e.keyCode);
           if (__indexOf.call(cards[0].concat(cards[1]), pressed) >= 0 && !event.metaKey) {
+            score = parseInt($("#" + socket.id).text());
             if (pressed === common) {
-              score += 1;
               return socket.emit("correct", {
                 id: game_id,
-                score: parseInt($("#" + socket.id).text())
+                score: score
               });
             } else if (score) {
-              socket.emit("wrong", {
+              return socket.emit("wrong", {
                 id: game_id,
-                score: parseInt($("#" + socket.id).text())
+                score: score
               });
-              return score -= 1;
             }
           }
         });
-      });
-      socket.on("game stopped", function(data) {
-        socket.disconnect();
-        $("#game").hide();
-        $("#player-cont").hide();
-        return $("#postgame").show();
       });
       socket.on("game update", function(data) {
         cards = data.cards, common = data.common;
         $("#card1").text(cards[0]);
         return $("#card2").text(cards[1]);
+      });
+      socket.on("stopped", function(data) {
+        $(window).unbind();
+        $("#game").hide();
+        $("#player-cont").hide();
+        return $("#postgame").show();
       });
       socket.on("score update", function(data) {
         return $("#" + data.player).text(data["new"]);
