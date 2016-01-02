@@ -27,6 +27,13 @@
                 font-size: 5em;
                 margin-top: -2px;
             }
+            .card {
+                text-align: center;
+            }
+            h1.char {
+                display: inline-block;
+                margin-right: 25px;
+            }
         </style>
     </head>
 
@@ -35,19 +42,6 @@
 
 
             <!-- <h1 id="loading-text">Loading Cards...</h1> -->
-
-            <div class="container" id="game">
-                <h1 id="timer">0:30</h1>
-                <br><br><br><br><br>
-
-                <div id="cards">
-                    <h1 id="card1"></h1>
-                    <br><br><br><br><br>
-                    <h1 id="card2"></h1>
-                </div>
-
-                <br><br><br><br>
-            </div>
 
             <div class="container" id="signup">
                 <h1 style="margin-top: 30px;margin-bottom: 75px;">Welcome to Brain Freeze!</h1>
@@ -61,11 +55,21 @@
             <div class="container" id="pregame" style="margin-top: 25px;">
                 <h1 style="display: inline;">Waiting for Players</h1>
                 <input type="button" id="start-game" value="Start Game" class="btn btn-lg  btn-primary" style="float: right;">
+                <ul id="players" style="list-style-type: none; margin: 0; padding: 0; margin-top: 75px;"></ul>
             </div>
 
-            <div class="container" id="players-cont" style="margin-top: 75px">
-                <ul id="players" style="list-style-type: none; margin: 0; padding: 0;">
-                </ul>
+            <div class="container" id="game">
+                <h1 id="timer">1:00</h1>
+                <br><br><br><br><br>
+
+                <div class="row" id="cards">
+                    <div id="card0" class="card" style="margin-bottom: 50px;"></div>
+                    <hr style="height:3px;border:none;color:#333;background-color:#333;">
+                    <div id="card1" class="card"></div>
+                </div>
+
+                <br><br><br><br>
+                <ul id="scores" style="list-style-type: none; margin: 0; padding: 0; margin-top: 75px;"></ul>
             </div>
 
             <div class="container" id="postgame">

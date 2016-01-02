@@ -4,7 +4,7 @@ import string, random, time, os, base64
 from memcache import Client
 from threading import Timer
 
-NUM_EACH = 7
+NUM_EACH = 9
 NUM_CARDS = 2
 
 app = Flask(__name__, template_folder='.', static_folder='.')
@@ -24,20 +24,22 @@ def join_game(data):
     game = mc.get(game_id)
     if not game:
         master = True
-        game = [[request.sid, data["name"]]]
+        game = {"players": {
+            request.sid: {
+                "name":data["name"], "score": 0
+            }
+        }, "started": 0, "master": request.sid, "num": -1, "answer": "", "changed": ""}
+
         mc.add(game_id, game)
         close_room(game_id)
-    elif game == -1:
+    elif game["started"]:
         emit("too late")
         return
     else:
-        game += [[request.sid, data["name"]]]
+        game["players"][request.sid] = {"name":data["name"], "score": 0}
         mc.set(game_id, game)
 
-    #mc.add(request.cookies["playerId"], 0)
-
     join_room(game_id)
-    print(game_id)
     emit("pregame update", game, room = game_id)
 
 @socketio.on('start game')
@@ -45,39 +47,39 @@ def start_game(data):
     game_id = data["id"]
     game = mc.get(game_id)
 
-    if game[0][0] == request.sid:
-        mc.set(game_id, -1)
-        emit("game started", room = game_id)
-        emit("game update", gen_cards(), room = game_id)
-        print("started")
-#        Timer(30, stop_game, [game_id, request.namespace]).start()
-#
-# @socketio.on('stopping')
-# def stopping(game_id):
-#     stop_game(game_id)
+    if game["master"] == request.sid:
+        game["started"] = 1
+        emit("game started", game, room = game_id)
+        send_update(game_id, game)
+
+def send_update(game_id, game):
+    cards = gen_cards()
+
+    game["changed"] = request.sid
+    game["num"] += 1
+    game["answer"] = cards[1]
+    mc.set(game_id, game)
+
+    game["cards"] = cards[0]
+    emit("game update", game, room = game_id)
+
+@socketio.on("check answer")
+def update_score(data):
+    game_id = data["id"]
+    game = mc.get(game_id)
+    if game["num"] == int(data["num"]):
+        print("asdsd")
+        game["players"][request.sid]["score"] = max(0, game["players"][request.sid]["score"] + (10 if data["answer"] == game["answer"] else -5))
+        game["changed"] = request.sid
+        send_update(game_id, game)
 
 @socketio.on('stop')
 def stop_game(data):
     game_id = data["id"]
-    print(game_id)
     mc.delete(game_id)
-    socketio.emit("stopped", room = game_id)
+
+    emit("stopped", room = game_id)
     socketio.close_room(game_id)
-
-@socketio.on('correct')
-def correct(data):
-    game_id = data["id"]
-
-    if mc.get(game_id):
-        emit("game update", gen_cards(), room = game_id)
-        emit("score update", {"player": request.sid, "new": data["score"] + 10}, room = game_id)
-
-@socketio.on('wrong')
-def correct(data):
-    game_id = data["id"]
-
-    if mc.get(game_id):
-        emit("score update", {"player": request.sid, "new": data["score"] - 5}, room = game_id)
 
 def gen_cards():
     pool = set(string.ascii_uppercase + string.digits)
@@ -93,7 +95,7 @@ def gen_cards():
 
     list(map(random.shuffle, cards))
 
-    return {"cards": cards, "common": common}
+    return cards, common
 
 @app.route('/<path>')
 def other(path):

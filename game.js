@@ -1,10 +1,8 @@
 (function() {
-  var bound, cards, common, game_id, in_pregame, master, players, score, socket, timer,
+  var CHARS, COLORS, cards, first_pregame, game_id, in_pregame, join_bound, master, num, players, socket, timer,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  cards = common = null;
-
-  score = 0;
+  cards = null;
 
   socket = io();
 
@@ -14,15 +12,21 @@
 
   timer = null;
 
-  bound = false;
+  join_bound = false;
+
+  first_pregame = true;
 
   master = false;
 
   players = null;
 
-  $("#pregame").hide();
+  num = -1;
 
-  $("#players-cont").hide();
+  COLORS = ["green", "red", "black", "orange", "purple", "blue"];
+
+  CHARS = "GAZH5C2O8I0W3VRJKLPFBN4U7YT91EDMXQ6S";
+
+  $("#pregame").hide();
 
   $("#game").hide();
 
@@ -32,82 +36,100 @@
 
   $("#id-form").submit(function(e) {
     game_id = $("#game-id").val();
-    if (!bound) {
+    if (!join_bound) {
       socket.on("pregame update", function(data) {
-        var player;
-        player = data;
-        $("#signup").hide();
-        $("#pregame").show();
-        $("#players-cont").show();
-        $("#players").html(((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = players.length; _i < _len; _i++) {
-            player = players[_i];
-            _results.push("<li class='player' id='" + player[0] + "-score'>" + player[1] + "<h1 class='score' id='" + player[0] + "'>0</h1></li>");
-          }
-          return _results;
-        })()).join("\n"));
-        $("#" + socket.id + "-score").addClass("you");
-        $(".score").hide();
-        if (players.length === 1) {
-          master = true;
-          $("#start-game").show();
-          $("#start-game").click(function(e) {
-            return socket.emit("start game", {
-              id: game_id
-            });
-          });
-        }
-        if (players[players.length - 1][0] === socket.id) {
-          return $(window).on('beforeunload', function(e) {
+        var info, player;
+        window.data = data;
+        if (first_pregame) {
+          master = data.master === socket.id;
+          $("#signup").hide();
+          $("#pregame").show();
+          $(window).on('beforeunload', function(e) {
             socket.emit("stopping", game_id);
             return "A game is in progress.";
           });
+          if (master) {
+            $("#start-game").show();
+            $("#start-game").click(function(e) {
+              return socket.emit("start game", {
+                id: game_id
+              });
+            });
+          }
+          first_pregame = false;
         }
+        $("#players").html(((function() {
+          var _ref, _results;
+          _ref = data.players;
+          _results = [];
+          for (player in _ref) {
+            info = _ref[player];
+            _results.push("<li class='player' id='" + player + "'>" + info.name + "</li>");
+          }
+          return _results;
+        })()).join("\n"));
+        return $("#" + socket.id).addClass("you");
       });
       socket.on("game started", function(data) {
+        var info, player;
+        $("#scores").html(((function() {
+          var _ref, _results;
+          _ref = data.players;
+          _results = [];
+          for (player in _ref) {
+            info = _ref[player];
+            _results.push("<li class='player' id='" + player + "-score-disp'>" + info.name + "<h1 id='" + player + "-score'>0</h1></li>");
+          }
+          return _results;
+        })()).join("\n"));
+        $("#" + socket.id + "-score-disp").addClass("you");
         $("#pregame").hide();
         $("#game").show();
-        $(".score").show();
         timer = new Tock({
           countdown: true,
           interval: 100,
           callback: function() {
             return $("#timer").text(timer.msToTimecode(timer.lap()).slice(4));
           },
-          complete: function() {
-            if (master) {
-              return socket.emit("stop", {
-                id: game_id
-              });
-            }
-          }
+          complete: master ? function() {
+            return socket.emit("stop", {
+              id: game_id
+            });
+          } : function() {}
         });
         timer.start($("#timer").text());
         return $("body").keyup(function(e) {
           var pressed;
           pressed = String.fromCharCode(e.keyCode);
           if (__indexOf.call(cards[0].concat(cards[1]), pressed) >= 0 && !event.metaKey) {
-            score = parseInt($("#" + socket.id).text());
-            if (pressed === common) {
-              return socket.emit("correct", {
-                id: game_id,
-                score: score
-              });
-            } else if (score) {
-              return socket.emit("wrong", {
-                id: game_id,
-                score: score
-              });
-            }
+            return socket.emit("check answer", {
+              id: game_id,
+              answer: pressed,
+              num: num
+            });
           }
         });
       });
       socket.on("game update", function(data) {
-        cards = data.cards, common = data.common;
-        $("#card1").text(cards[0]);
-        return $("#card2").text(cards[1]);
+        var card, char, n, _results;
+        $("#" + data.changed + "-score").text(data.players[data.changed].score);
+        console.log(data);
+        num = data.num;
+        cards = data.cards;
+        _results = [];
+        for (n in cards) {
+          card = cards[n];
+          _results.push($("#card" + n).html(((function() {
+            var _i, _len, _results1;
+            _results1 = [];
+            for (_i = 0, _len = card.length; _i < _len; _i++) {
+              char = card[_i];
+              _results1.push("<h1 class='char' style='color: " + COLORS[CHARS.indexOf(char) % COLORS.length] + "'>" + char + "</h1>");
+            }
+            return _results1;
+          })()).join("\n")));
+        }
+        return _results;
       });
       socket.on("stopped", function(data) {
         $(window).unbind();
@@ -115,13 +137,10 @@
         $("#player-cont").hide();
         return $("#postgame").show();
       });
-      socket.on("score update", function(data) {
-        return $("#" + data.player).text(data["new"]);
-      });
       socket.on("too late", function(e) {
-        bound = true;
         return alert("Game already started");
       });
+      join_bound = true;
     }
     socket.emit("join game", {
       name: $("#name").val(),
