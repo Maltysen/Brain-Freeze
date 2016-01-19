@@ -46,8 +46,8 @@
             <div class="container" id="signup">
                 <h1 style="margin-top: 30px;margin-bottom: 75px;">Welcome to Brain Freeze!</h1>
                 <form id="id-form">
-                    <h1><label for="name">Your Nickname:</label> <input type="input" id="name" value="" class="form-control"></h1>
-                    <h1><label for="game-id">Game Id:</label> <input type="input" id="game-id" value="" class="form-control"></h1>
+                    <h1><label for="name">Your Nickname:</label> <input type="input" id="name" value="{{ name }}" class="form-control"></h1>
+                    <h1><label for="game-id">Game Id:</label> <input type="input" id="game-id" value="{{ game_id }}" class="form-control"></h1>
                     <button type="submit" class="btn btn-primary">Join/Start Game</button>
                 </form>
             </div>
@@ -59,7 +59,7 @@
             </div>
 
             <div class="container" id="game">
-                <h1 id="timer">1:00</h1>
+                <h1 id="timer"></h1>
                 <br><br><br><br><br>
 
                 <div class="row" id="cards">
@@ -75,6 +75,7 @@
             <div class="container" id="postgame">
                 <h1>Game Over!</h1><br><br><br>
                 <h2><a class="btn btn-primary" href="javascript:document.location.reload()">Play Again</a></h2>
+                <h2><a class="btn btn-primary" href="javascript:init_game();$('#id-form').submit()">Play Again with same info</a></h2>
             </div>
 
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>

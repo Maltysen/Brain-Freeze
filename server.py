@@ -14,7 +14,7 @@ socketio = SocketIO(app)
 
 @app.route('/')
 def root():
-    return render_template("index.html")
+    return render_template("index.html", name = request.args.get("name", ""), game_id = request.args.get("game_id", ""))
 
 @socketio.on('join game')
 def join_game(data):
@@ -36,7 +36,7 @@ def join_game(data):
         emit("too late")
         return
     else:
-        game["players"][request.sid] = {"name":data["name"], "score": 0}
+        game["players"][request.sid] = {"name": data["name"], "score": 0}
         mc.set(game_id, game)
 
     join_room(game_id)
