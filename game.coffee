@@ -17,7 +17,7 @@ window.init_game = () ->
     $("#postgame").hide()
     $("#start-game").hide()
     $("#signup").show()
-    $("#timer").text("2:00")
+    $("#timer").text("3:00")
     first_pregame = true
 
 init_game()
@@ -86,7 +86,8 @@ socket.on("game update", (data) ->
 )
 
 socket.on("stopped", (data) ->
-    #winner = winner.data
+    $("#winners").html(("<li>#{player.name} - #{player.score} points</li>" for player in data).join("\n"))
+
     $(window).unbind()
     $("#game").hide()
     $("#player-cont").hide()

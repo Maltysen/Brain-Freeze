@@ -76,9 +76,12 @@ def update_score(data):
 @socketio.on('stop')
 def stop_game(data):
     game_id = data["id"]
+    game = mc.get(game_id)
+    players = game["players"]
+    players = sorted(players.values(), key=lambda x: x["score"])
     mc.delete(game_id)
 
-    emit("stopped", room = game_id)
+    emit("stopped", players, room = game_id)
     socketio.close_room(game_id)
 
 def gen_cards():
@@ -102,4 +105,4 @@ def other(path):
     return app.send_static_file(path)
 
 if __name__ == '__main__':
-    socketio.run(app=app, debug=True, host="0.0.0.0", use_reloader=True)
+    socketio.run(app=app, debug=True, host="0.0.0.0", use_reloader=True, port=80)

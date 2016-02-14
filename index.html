@@ -48,7 +48,10 @@
                 <form id="id-form">
                     <h1><label for="name">Your Nickname:</label> <input type="input" id="name" value="{{ name }}" class="form-control"></h1>
                     <h1><label for="game-id">Game Id:</label> <input type="input" id="game-id" value="{{ game_id }}" class="form-control"></h1>
-                    <button type="submit" class="btn btn-primary">Join/Start Game</button>
+                    <button type="submit" class="btn btn-primary">Join/Start Game</button><br><br><br><br>
+		    <h1>How to Play?</h1><br>
+		    <p style="width: 75%;font-size: 1.5em;">       Brain Freeze is a multiplayer game where you have to spot the common number or letter between two lists, then press that key on your keyboard. Correct answers award 10 points, and wrong answers make you lose 5. Sounds easy, right?</p>
+                    <p style="width: 75%;font-size: 1.5em;">       Well this game may be simple, but its anything but easy. With only 3:00 and racing against other people, its actually very hard. You'll see. Good luck!</p>
                 </form>
             </div>
 
@@ -74,6 +77,8 @@
 
             <div class="container" id="postgame">
                 <h1>Game Over!</h1><br><br><br>
+                <h1>Final Scores:</h1><br>
+		<h2><ol id="winners"></ol></h2><br><br><br>
                 <h2><a class="btn btn-primary" href="javascript:document.location.reload()">Play Again</a></h2>
                 <h2><a class="btn btn-primary" href="javascript:init_game();$('#id-form').submit()">Play Again with same info</a></h2>
             </div>
