@@ -76,13 +76,16 @@ socket.on("game started", (data) ->
 )
 
 socket.on("game update", (data) ->
-    $("##{data.changed}-score").text(data.players[data.changed].score)
-    console.log data
-    num = data.num
-    cards = data.cards
+    if data.changed
+        $("##{data.changed}-score").text(data.players[data.changed].score)
 
-    for n, card of cards
-        $("#card#{n}").html(("<h1 class='char' style='color: #{COLORS[CHARS.indexOf(char) % COLORS.length]}'>#{char}</h1>" for char in card).join("\n"))
+    console.log data
+
+    if data.new
+        num = data.num
+        cards = data.cards
+        for n, card of cards
+            $("#card#{n}").html(("<h1 class='char' style='color: #{COLORS[CHARS.indexOf(char) % COLORS.length]}'>#{char}</h1>" for char in card).join("\n"))
 )
 
 socket.on("stopped", (data) ->

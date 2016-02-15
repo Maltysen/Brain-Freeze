@@ -50,28 +50,38 @@ def start_game(data):
     if game["master"] == request.sid:
         game["started"] = 1
         emit("game started", game, room = game_id)
-        send_update(game_id, game)
 
-def send_update(game_id, game):
-    cards = gen_cards()
+        game["num"] += 1
+        game["new"] = True
 
-    game["changed"] = request.sid
-    game["num"] += 1
-    game["answer"] = cards[1]
-    mc.set(game_id, game)
+        cards = gen_cards()
+        game["answer"] = cards[1]
+        mc.set(game_id, game)
 
-    game["cards"] = cards[0]
-    emit("game update", game, room = game_id)
+        game["cards"] = cards[0]
+
+        emit("game update", game, room = game_id)
 
 @socketio.on("check answer")
 def update_score(data):
     game_id = data["id"]
     game = mc.get(game_id)
+    print(data)
     if game["num"] == int(data["num"]):
-        print("asdsd")
-        game["players"][request.sid]["score"] = max(0, game["players"][request.sid]["score"] + (10 if data["answer"] == game["answer"] else -5))
+        correct = data["answer"] == game["answer"]
+        game["players"][request.sid]["score"] = max(0, game["players"][request.sid]["score"] + (10 if correct else -5))
         game["changed"] = request.sid
-        send_update(game_id, game)
+        game["new"] = data["answer"] == game["answer"]
+        if correct:
+            game["num"] += 1
+            cards = gen_cards()
+            game["answer"] = cards[1]
+        mc.set(game_id, game)
+
+        if correct:
+            game["cards"] = cards[0]
+
+        emit("game update", game, room = game_id)
 
 @socketio.on('stop')
 def stop_game(data):
