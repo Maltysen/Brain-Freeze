@@ -6,9 +6,15 @@ timer = null
 first_pregame = true
 master = false
 players = null
+playing = true
 num = -1
 
-COLORS = ["green", "red", "black", "orange", "purple", "blue"]
+check = (pressed) ->
+    if playing
+        if pressed in cards[0].concat(cards[1])
+            socket.emit("check answer", {id: game_id, answer: pressed, num: num})
+
+COLORS = ["green", "red", "black", "SaddleBrown", "purple", "blue"]
 CHARS = "GAZH5C2O8I0W3VRJKLPFBN4U7YT91EDMXQ6S"
 
 window.init_game = () ->
@@ -69,9 +75,8 @@ socket.on("game started", (data) ->
     timer.start($("#timer").text())
 
     $("body").keyup((e) ->
-        pressed = String.fromCharCode(e.keyCode)
-        if pressed in cards[0].concat(cards[1]) and not event.metaKey
-            socket.emit("check answer", {id: game_id, answer: pressed, num: num})
+        if not event.metaKey
+            check(String.fromCharCode(e.keyCode))
     )
 )
 
@@ -84,8 +89,19 @@ socket.on("game update", (data) ->
     if data.new
         num = data.num
         cards = data.cards
-        for n, card of cards
-            $("#card#{n}").html(("<h1 class='char' style='color: #{COLORS[CHARS.indexOf(char) % COLORS.length]}'>#{char}</h1>" for char in card).join("\n"))
+
+        timer.pause()
+        $(".answer").css("background", "yellow")
+        playing = false
+        setTimeout(() ->
+            for n, card of cards
+                $("#card#{n}").html(("<h1 class='char #{if char == data.answer then "answer" else ""}' style='color: #{COLORS[CHARS.indexOf(char) % COLORS.length]}'>#{char}</h1>" for char in card).join("\n"))
+                $(".char").click((e) ->
+                    check($(e.target).text())
+                )
+            playing = true
+            timer.pause()
+        , if data.changed then 1500 else 0)
 )
 
 socket.on("stopped", (data) ->
@@ -100,7 +116,3 @@ socket.on("stopped", (data) ->
 socket.on("too late", (e) ->
     alert("Game already started")
 )
-###
-#canvas = $("#disp")[0].getContext "2d"
-#canvas.font = "30px Arial"
-###

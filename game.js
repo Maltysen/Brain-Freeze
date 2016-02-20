@@ -1,5 +1,5 @@
 (function() {
-  var CHARS, COLORS, cards, first_pregame, game_id, in_pregame, master, num, players, socket, timer,
+  var CHARS, COLORS, cards, check, first_pregame, game_id, in_pregame, master, num, players, playing, socket, timer,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   cards = null;
@@ -18,9 +18,23 @@
 
   players = null;
 
+  playing = true;
+
   num = -1;
 
-  COLORS = ["green", "red", "black", "orange", "purple", "blue"];
+  check = function(pressed) {
+    if (playing) {
+      if (__indexOf.call(cards[0].concat(cards[1]), pressed) >= 0) {
+        return socket.emit("check answer", {
+          id: game_id,
+          answer: pressed,
+          num: num
+        });
+      }
+    }
+  };
+
+  COLORS = ["green", "red", "black", "SaddleBrown", "purple", "blue"];
 
   CHARS = "GAZH5C2O8I0W3VRJKLPFBN4U7YT91EDMXQ6S";
 
@@ -107,20 +121,13 @@
     });
     timer.start($("#timer").text());
     return $("body").keyup(function(e) {
-      var pressed;
-      pressed = String.fromCharCode(e.keyCode);
-      if (__indexOf.call(cards[0].concat(cards[1]), pressed) >= 0 && !event.metaKey) {
-        return socket.emit("check answer", {
-          id: game_id,
-          answer: pressed,
-          num: num
-        });
+      if (!event.metaKey) {
+        return check(String.fromCharCode(e.keyCode));
       }
     });
   });
 
   socket.on("game update", function(data) {
-    var card, char, n, _results;
     if (data.changed) {
       $("#" + data.changed + "-score").text(data.players[data.changed].score);
     }
@@ -128,20 +135,29 @@
     if (data["new"]) {
       num = data.num;
       cards = data.cards;
-      _results = [];
-      for (n in cards) {
-        card = cards[n];
-        _results.push($("#card" + n).html(((function() {
-          var _i, _len, _results1;
-          _results1 = [];
-          for (_i = 0, _len = card.length; _i < _len; _i++) {
-            char = card[_i];
-            _results1.push("<h1 class='char' style='color: " + COLORS[CHARS.indexOf(char) % COLORS.length] + "'>" + char + "</h1>");
-          }
-          return _results1;
-        })()).join("\n")));
-      }
-      return _results;
+      timer.pause();
+      $(".answer").css("background", "yellow");
+      playing = false;
+      return setTimeout(function() {
+        var card, char, n;
+        for (n in cards) {
+          card = cards[n];
+          $("#card" + n).html(((function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = card.length; _i < _len; _i++) {
+              char = card[_i];
+              _results.push("<h1 class='char " + (char === data.answer ? "answer" : "") + "' style='color: " + COLORS[CHARS.indexOf(char) % COLORS.length] + "'>" + char + "</h1>");
+            }
+            return _results;
+          })()).join("\n"));
+          $(".char").click(function(e) {
+            return check($(e.target).text());
+          });
+        }
+        playing = true;
+        return timer.pause();
+      }, data.changed ? 1500 : 0);
     }
   });
 
@@ -165,11 +181,5 @@
   socket.on("too late", function(e) {
     return alert("Game already started");
   });
-
-
-  /*
-   *canvas = $("#disp")[0].getContext "2d"
-   *canvas.font = "30px Arial"
-   */
 
 }).call(this);
