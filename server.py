@@ -88,7 +88,7 @@ def stop_game(data):
     game_id = data["id"]
     game = mc.get(game_id)
     players = game["players"]
-    players = sorted(players.values(), key=lambda x: x["score"])
+    players = sorted(players.values(), key = lambda x: x["score"], reverse = True)
     mc.delete(game_id)
 
     emit("stopped", players, room = game_id)
