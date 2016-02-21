@@ -73,6 +73,10 @@
                 <h1 style="display: inline;">Waiting for Players</h1>
                 <input type="button" id="start-game" value="Start Game" class="btn btn-lg  btn-primary" style="float: right;">
                 <ul id="players" style="list-style-type: none; margin: 0; padding: 0; margin-top: 75px;"></ul>
+                <br>
+                <br>
+                <label for="invite">Invite link:</label>
+                <input type="text" class="form-control" onClick="this.setSelectionRange(0, this.value.length)" id="invite" style="background:white; cursor: text; width: 230px; display: inline; margin-left: 10px;" value="http://localhost/?game_id=1234" readonly>
             </div>
 
             <div class="container" id="game">

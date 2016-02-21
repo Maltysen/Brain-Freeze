@@ -63,6 +63,7 @@
     var info, player;
     if (first_pregame) {
       master = data.master === socket.id;
+      $("#invite").val(document.location.origin + document.location.pathname + ("?game_id=" + game_id));
       $("#signup").hide();
       $("#pregame").show();
       $(window).on('beforeunload', function(e) {

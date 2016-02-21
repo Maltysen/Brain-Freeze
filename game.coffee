@@ -39,6 +39,8 @@ socket.on("pregame update", (data) ->
         if first_pregame
             master = data.master is socket.id
 
+            $("#invite").val(document.location.origin + document.location.pathname + "?game_id=#{game_id}")
+
             $("#signup").hide()
             $("#pregame").show()
 
