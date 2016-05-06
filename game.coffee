@@ -25,12 +25,13 @@ window.init_game = () ->
     $("#signup").show()
     first_pregame = true
 
+$("[rel=tooltip]").tooltip({ placement: 'right'});
 init_game()
 
 $("#id-form").submit((e) ->
-    game_id = $("#game-id").val()
+    game_id = $("#game-id").val() or (socket.id).replace(/[^0-9]/g, '')
 
-    socket.emit("join game", {name: $("#name").val(), id: $("#game-id").val()})
+    socket.emit("join game", {name: $("#name").val(), id: game_id})
     false
 )
 
