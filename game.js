@@ -44,7 +44,6 @@
     $("#postgame").hide();
     $("#start-game").hide();
     $("#signup").show();
-    $("#timer").text("3:00");
     return first_pregame = true;
   };
 
@@ -120,7 +119,7 @@
         });
       } : function() {}
     });
-    timer.start($("#timer").text());
+    timer.start("{{ time }}");
     return $("body").keyup(function(e) {
       if (!event.metaKey) {
         return check(String.fromCharCode(e.keyCode));

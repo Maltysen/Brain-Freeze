@@ -23,7 +23,6 @@ window.init_game = () ->
     $("#postgame").hide()
     $("#start-game").hide()
     $("#signup").show()
-    $("#timer").text("3:00")
     first_pregame = true
 
 init_game()
@@ -74,7 +73,7 @@ socket.on("game started", (data) ->
         complete: if master then () -> socket.emit("stop", {id: game_id}) else () ->
     })
 
-    timer.start($("#timer").text())
+    timer.start("{{ time }}")
 
     $("body").keyup((e) ->
         if not event.metaKey

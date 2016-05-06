@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, Response, jsonify, make_response
+from flask import Flask, render_template, request, Response, jsonify, make_response, redirect, url_for
 from flask_socketio import SocketIO, emit, join_room, leave_room, rooms, close_room
 import string, random, time, os, base64
 from memcache import Client
@@ -6,6 +6,7 @@ from threading import Timer
 
 NUM_EACH = 9
 NUM_CARDS = 2
+GAME_LENGTH = "1:30"
 
 app = Flask(__name__, template_folder='.', static_folder='.')
 app.config['SECRET_KEY'] = 'secret!'
@@ -109,6 +110,15 @@ def gen_cards():
     list(map(random.shuffle, cards))
 
     return cards, common
+
+@app.route('/game.js')
+def game():
+    return render_template("game.js", time=GAME_LENGTH)
+
+@app.route('/flush')
+def flush():
+    mc.flush_all()
+    return redirect('/?flushed')
 
 @app.route('/<path>')
 def other(path):
