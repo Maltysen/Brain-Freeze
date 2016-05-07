@@ -61,7 +61,7 @@
                 <h1 style="margin-top: 30px;margin-bottom: 75px;">Welcome to Brain Freeze!</h1>
                 <form id="id-form">
                     <h1><label for="name">Your Nickname:</label> <input type="input" id="name" value="{{ name }}" class="form-control" required></h1>
-                    <h1><label for="game-id">Game Id:</label> <span class="glyphicon glyphicon-question-sign" rel="tooltip" title="If playing with others, everyone's has to be the same numeric ID. If playing alone, leave it blank." id="blah"></span> <input type="number" id="game-id" value="{{ game_id }}" class="form-control"></h1>
+                    <h1><label for="game-id">Game Id:</label> <span class="glyphicon glyphicon-question-sign" rel="tooltip" title="If playing with others, everyone has to have the same numeric ID. If playing alone, leave it blank." id="blah"></span> <input type="number" id="game-id" value="{{ game_id }}" class="form-control"></h1>
                     <button type="submit" class="btn btn-primary">Join/Start Game</button><br><br><br><br>
 		    <h1>How to Play?</h1><br>
 		    <p style="width: 75%;font-size: 1.5em;"> Brain Freeze is a multiplayer game where you have to spot the common number or letter between two lists, then press that key on your keyboard. Correct answers award 10 points, and wrong answers make you lose 5. Sounds easy, right?</p>
@@ -97,8 +97,8 @@
                 <h1>Game Over!</h1><br><br><br>
                 <h1>Final Scores:</h1><br>
 		<h2><ol id="winners"></ol></h2><br><br><br>
-                <h2><a class="btn btn-primary" href="javascript:document.location.reload()">Play Again</a></h2>
-                <h2><a class="btn btn-primary" href="javascript:init_game();$('#id-form').submit()">Play Again with same info</a></h2>
+                <h2><a class="btn btn-primary" href="javascript:document.location='?name='+$('#name').val()+'&game_id='+$('#game-id').val()">Play Again</a></h2>
+                <h2><a class="btn btn-primary" href="javascript:init_game();$('#id-form').submit()">Start New Game</a></h2>
             </div>
 
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>

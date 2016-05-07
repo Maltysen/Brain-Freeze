@@ -23,6 +23,7 @@ window.init_game = () ->
     $("#postgame").hide()
     $("#start-game").hide()
     $("#signup").show()
+    $("#name").focus().select()
     first_pregame = true
 
 $("[rel=tooltip]").tooltip({ placement: 'right'});
@@ -52,6 +53,8 @@ socket.on("pregame update", (data) ->
             if master
                 $("#start-game").show()
                 $("#start-game").click((e) -> socket.emit("start game", {id: game_id}))
+                if not $("#game-id").val()
+                    $("#start-game").click()
 
             first_pregame = false
 
