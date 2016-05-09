@@ -6,7 +6,7 @@ from threading import Timer
 
 NUM_EACH = 9
 NUM_CARDS = 2
-GAME_LENGTH = "00:30"
+GAME_LENGTH = "3:00"
 
 app = Flask(__name__, template_folder='.', static_folder='.')
 app.config['SECRET_KEY'] = 'secret!'

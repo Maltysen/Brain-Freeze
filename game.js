@@ -138,13 +138,23 @@
   socket.on("game update", function(data) {
     if (data.changed) {
       $("#" + data.changed + "-score").text(data.players[data.changed].score);
+      if (data["new"]) {
+        $("#" + data.changed + "-score-disp").addClass(data.changed === socket.id ? "correctSelf" : "correctOther");
+        setTimeout(function() {
+          return $("#" + data.changed + "-score-disp").removeClass(data.changed === socket.id ? "correctSelf" : "correctOther");
+        }, 1400);
+      } else {
+        $("#" + data.changed + "-score-disp").addClass("wrong");
+        setTimeout(function() {
+          return $("#" + data.changed + "-score-disp").removeClass("wrong");
+        }, 1400);
+      }
     }
-    console.log(data);
     if (data["new"]) {
       num = data.num;
       cards = data.cards;
       timer.pause();
-      $(".answer").css("background", "yellow");
+      $(".answer").addClass("circled");
       playing = false;
       return setTimeout(function() {
         var card, char, n;

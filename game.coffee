@@ -88,15 +88,23 @@ socket.on("game started", (data) ->
 socket.on("game update", (data) ->
     if data.changed
         $("##{data.changed}-score").text(data.players[data.changed].score)
-
-    console.log data
+        if data.new
+            $("##{data.changed}-score-disp").addClass(if data.changed is socket.id then "correctSelf" else "correctOther")
+            setTimeout(() ->
+                $("##{data.changed}-score-disp").removeClass(if data.changed is socket.id then "correctSelf" else "correctOther")
+            , 1400)
+        else
+            $("##{data.changed}-score-disp").addClass("wrong")
+            setTimeout(() ->
+                $("##{data.changed}-score-disp").removeClass("wrong")
+            , 1400)
 
     if data.new
         num = data.num
         cards = data.cards
 
         timer.pause()
-        $(".answer").css("background", "yellow")
+        $(".answer").addClass("circled")
         playing = false
         setTimeout(() ->
             for n, card of cards
