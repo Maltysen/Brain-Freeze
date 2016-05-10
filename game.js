@@ -147,7 +147,7 @@
         $("#" + data.changed + "-score-disp").addClass("wrong");
         setTimeout(function() {
           return $("#" + data.changed + "-score-disp").removeClass("wrong");
-        }, 1400);
+        }, 900);
       }
     }
     if (data["new"]) {

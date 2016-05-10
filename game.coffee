@@ -97,7 +97,7 @@ socket.on("game update", (data) ->
             $("##{data.changed}-score-disp").addClass("wrong")
             setTimeout(() ->
                 $("##{data.changed}-score-disp").removeClass("wrong")
-            , 1400)
+            , 900)
 
     if data.new
         num = data.num
