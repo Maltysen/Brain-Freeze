@@ -8,6 +8,7 @@ master = false
 players = null
 playing = true
 num = -1
+ding = new Audio "ding.wav"
 
 check = (pressed) ->
     if playing
@@ -98,6 +99,13 @@ socket.on("game update", (data) ->
             setTimeout(() ->
                 $("##{data.changed}-score-disp").removeClass("wrong")
             , 900)
+
+        if data.changed is socket.id
+            if data.new
+                #ding.play()
+                4
+            else
+                3
 
     if data.new
         num = data.num

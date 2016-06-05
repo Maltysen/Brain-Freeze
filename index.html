@@ -79,13 +79,13 @@
             .circled {
                 border-radius: 255px 190px 225px 190px/190px 225px 190px 255px;
                 border:solid 5px hsla(0, 95%, 35%, 1);
-                padding-right: .3em;
-                padding-left: .3em;
             }
             h1.char {
                 display: inline-block;
                 margin-right: 25px;
                 cursor: pointer;
+                padding-right: .3em;
+                padding-left: .3em;
             }
             p {
                 text-indent: 50px;
@@ -107,7 +107,7 @@
             <!-- <h1 id="loading-text">Loading Cards...</h1> -->
 
             <div class="container" id="signup">
-                <h1 style="margin-top: 30px;margin-bottom: 75px;">Welcome to Brain Freeze!</h1>
+                <h1 style="margin-top: 30px;margin-bottom: 45px;"><img src="favicon.ico" width="175" style="margin-right: 45px;">Welcome to Brain Freeze!</h1>
                 <form id="id-form">
                     <h1><label for="name">Your Nickname:</label> <input type="input" id="name" value="{{ name }}" class="form-control" required></h1>
                     <h1><label for="game-id">Game Id:</label> <span class="glyphicon glyphicon-question-sign" rel="tooltip" title="If playing with others, everyone has to have the same numeric ID. If playing alone, leave it blank." id="blah"></span> <input type="number" id="game-id" value="{{ game_id }}" class="form-control"></h1>
@@ -139,7 +139,7 @@
                 </div>
 
                 <br><br><br><br>
-                <ul id="scores" style="list-style-type: none; margin: 0; padding: 0; margin-top: 75px;"></ul>
+                <ul id="scores" style="list-style-type: none; margin: 0; padding: 0; margin-top: 75px;overflow-x: auto;"></ul>
             </div>
 
             <div class="container" id="postgame">

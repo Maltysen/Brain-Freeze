@@ -1,5 +1,5 @@
 (function() {
-  var CHARS, COLORS, cards, check, first_pregame, game_id, in_pregame, master, num, players, playing, socket, timer,
+  var CHARS, COLORS, cards, check, ding, first_pregame, game_id, in_pregame, master, num, players, playing, socket, timer,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   cards = null;
@@ -21,6 +21,8 @@
   playing = true;
 
   num = -1;
+
+  ding = new Audio("ding.wav");
 
   check = function(pressed) {
     if (playing) {
@@ -148,6 +150,13 @@
         setTimeout(function() {
           return $("#" + data.changed + "-score-disp").removeClass("wrong");
         }, 900);
+      }
+      if (data.changed === socket.id) {
+        if (data["new"]) {
+          4;
+        } else {
+          3;
+        }
       }
     }
     if (data["new"]) {
